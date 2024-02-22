@@ -2,7 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-
+from django.contrib.auth.validators import UnicodeUsernameValidator
+username_validator = UnicodeUsernameValidator()
 
 class User(AbstractUser):
     # WARNING!
@@ -20,7 +21,32 @@ class User(AbstractUser):
 
     # First Name and Last Name do not cover name patterns
     # around the globe.
+    username = models.CharField(
+        _('username'),
+        max_length=150,
+        help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
+        validators=[username_validator],
+        error_messages={
+            'unique': _("A user with that username already exists."),
+        },
+        null=True,
+        blank=True,
+    )
     name = models.CharField(_("Name of User"), blank=True, null=True, max_length=255)
-
+    phone_number = models.CharField(_("Phone Number"), max_length=15, blank=True, null=True, unique=True)
+    email = models.EmailField(_("Email"), blank=True, null=True, unique=True)
+    verification_code = models.CharField(max_length=6, null=True, blank=True)
+    EMAIL_FIELD = 'email'
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = []
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})
+    
+    def verify_code(self, verification_code):
+        if self.verification_code == verification_code:
+            # Clear the verification code after successful verification
+            self.verification_code = None
+            self.save()
+            return True
+        else:
+            return False
