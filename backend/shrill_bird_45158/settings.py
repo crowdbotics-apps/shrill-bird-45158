@@ -71,8 +71,13 @@ INSTALLED_APPS = [
     'django.contrib.sites'
 ]
 LOCAL_APPS = [
+    'channels',
     'home',
     'users.apps.UsersConfig',
+    'auction',
+    'vehicle',
+    'payment',
+    'review',
 ]
 THIRD_PARTY_APPS = [
     'rest_framework',
@@ -303,3 +308,9 @@ REST_SESSION_LOGIN = False
 CRONJOBS = [
     ('*/1 * * * *', 'yourapp.management.commands.check_auction_status.Command'),
 ]
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',  # Use the appropriate backend
+    },
+}

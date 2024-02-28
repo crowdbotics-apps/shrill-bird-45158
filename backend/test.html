@@ -1,0 +1,32 @@
+<!-- Example JavaScript client -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auction WebSocket Client</title>
+</head>
+<body>
+    <h1>Auction WebSocket Client</h1>
+    <ul id="bidding-list"></ul>
+    <form id="bid-form">
+        <input type="text" id="bid-amount" placeholder="Enter bid amount" required>
+        <button type="submit">Place Bid</button>
+    </form>
+    <script>
+        const ws = new WebSocket('ws://localhost:8000/ws/auction/');
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const biddingList = document.getElementById('bidding-list');
+            const newBid = document.createElement('li');
+            newBid.textContent = `New bid: ${data.new_bid}`;
+            biddingList.appendChild(newBid);
+        };
+
+        document.getElementById('bid-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const bidAmount = document.getElementById('bid-amount').value;
+            ws.send(JSON.stringify({'new_bid': bidAmount}));
+        });
+    </script>
+</body>
+</html>
