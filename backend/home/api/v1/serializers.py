@@ -7,10 +7,36 @@ from allauth.utils import email_address_exists, generate_unique_username
 from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
 from rest_framework import serializers
-from dj_rest_auth.serializers import PasswordResetSerializer
-
+from dj_rest_auth.serializers import PasswordResetSerializer, LoginSerializer
+from django.contrib.auth import authenticate
 
 User = get_user_model()
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, style={'input_type': 'password'})
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        password = attrs.get('password')
+
+        if username and password:
+            user = authenticate(username=username, password=password)
+            if user:
+                if not user.is_active:
+                    msg = 'User account is disabled.'
+                    raise serializers.ValidationError(msg, code='authorization')
+            else:
+                msg = 'Unable to log in with provided credentials.'
+                raise serializers.ValidationError(msg, code='authorization')
+        else:
+            msg = 'Must include "username" and "password".'
+            raise serializers.ValidationError(msg, code='authorization')
+
+        attrs['user'] = user
+        return attrs
+
 
 
 class SignupSerializer(serializers.ModelSerializer):

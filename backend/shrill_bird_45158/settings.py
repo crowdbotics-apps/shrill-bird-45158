@@ -210,6 +210,8 @@ REST_AUTH = {
     "PASSWORD_RESET_SERIALIZER": "home.api.v1.serializers.PasswordSerializer",
     # Use custom serializer that has no username and matches web signup
     "REGISTER_SERIALIZER": "home.api.v1.serializers.SignupSerializer",
+    
+    'LOGIN_SERIALIZER': 'home.api.v1.serializers.LoginSerializer',
 }
 
 REST_FRAMEWORK = {

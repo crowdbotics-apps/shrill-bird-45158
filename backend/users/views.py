@@ -145,3 +145,16 @@ class PasswordResetConfirmView(APIView):
                 return Response({'detail': 'Invalid UID or token.'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UniqueUsernameCheck(APIView):
+    def post(self, request, *args, **kwargs):
+        username = request.data.get('username')
+        try:
+            if username:
+                user = User.objects.get(username=username)
+                return Response({'detail': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'detail': 'Username is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({'detail': 'Username is unique.'}, status=status.HTTP_200_OK)
