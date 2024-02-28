@@ -42,10 +42,14 @@ class LoginSerializer(serializers.Serializer):
 class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "name", "email", "password")
+        fields = ("id", "username", "email", "password")
         extra_kwargs = {
             "password": {"write_only": True, "style": {"input_type": "password"}},
             "email": {
+                "required": True,
+                "allow_blank": False,
+            },
+            "username": {
                 "required": True,
                 "allow_blank": False,
             },
@@ -69,14 +73,20 @@ class SignupSerializer(serializers.ModelSerializer):
                     _("A user is already registered with this e-mail address.")
                 )
         return email
+    
+    def validate_username(self, username):
+        check = User.objects.filter(username=username)
+        if check.exists():
+            raise serializers.ValidationError(
+                _("A user is already registered with this username.")
+            )
+        return username
 
     def create(self, validated_data):
         user = User(
             email=validated_data.get("email"),
             name=validated_data.get("name"),
-            username=generate_unique_username(
-                [validated_data.get("name"), validated_data.get("email"), "user"]
-            ),
+            username=validated_data.get("username"),
         )
         user.set_password(validated_data.get("password"))
         user.save()
