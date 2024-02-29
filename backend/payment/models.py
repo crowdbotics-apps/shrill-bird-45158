@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class Payment(models.Model):
-    acution = models.ForeignKey('auction.Auction', on_delete=models.CASCADE)
+    auction = models.ForeignKey('auction.Auction', on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     buyer = models.ForeignKey('users.User', on_delete=models.CASCADE)
     payment_date = models.DateTimeField()

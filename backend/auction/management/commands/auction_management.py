@@ -33,7 +33,7 @@ class Command(BaseCommand):
                 auction.save()
                 if auction.countdown == 0 and auction.highest_bid.amount >= auction.vehicle.reserve_price:
                     # Set the highest bidder as the winner
-                    highest_bidder = auction.highest_bid.buyer
+                    highest_bidder = auction.highest_bid.bidder
                     auction.status = 'completed'
                     auction.buyer = highest_bidder
                     auction.auctioned = True
@@ -41,7 +41,7 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.SUCCESS(f"Auction '{auction}' completed. Winner: {highest_bidder}"))
             elif auction.highest_bid.amount >= auction.vehicle.reserve_price:
                 # If countdown is 0 and the highest bid is above reserve price, mark the buyer as the winner
-                highest_bidder = auction.highest_bid.buyer
+                highest_bidder = auction.highest_bid.bidder
                 auction.status = 'completed'
                 auction.buyer = highest_bidder
                 auction.auctioned = True

@@ -7,7 +7,8 @@ from asgiref.sync import async_to_sync
 channel_layer = get_channel_layer()
 
 def update_bidding_status(request):
-    # Your logic to fetch bidding status
+    # Your logic to fetch bidding status from the database
+    
     
     bidding_status = {
         'current_bid': current_bid,

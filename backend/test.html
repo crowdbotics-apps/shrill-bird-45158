@@ -1,31 +1,72 @@
-<!-- Example JavaScript client -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Auction WebSocket Client</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auction Bidding Test</title>
 </head>
 <body>
-    <h1>Auction WebSocket Client</h1>
-    <ul id="bidding-list"></ul>
-    <form id="bid-form">
-        <input type="text" id="bid-amount" placeholder="Enter bid amount" required>
+    <h1>Auction Bidding Test</h1>
+    <form id="bidForm">
+        <label for="amount">Bid Amount:</label>
+        <input type="number" id="amount" name="amount" required><br><br>
+        <label for="bidder">Bidder Name:</label>
+        <input type="text" id="bidder" name="bidder" required><br><br>
+        <label for="auction_id">Auction ID:</label>
+        <input type="text" id="auction_id" name="auction_id" required><br><br>
         <button type="submit">Place Bid</button>
     </form>
-    <script>
-        const ws = new WebSocket('ws://localhost:8000/ws/auction/');
 
+    <h2>Previous Bids</h2>
+    <ul id="previousBids">
+        <!-- Previous bid data will be displayed here -->
+    </ul>
+
+    <script>
+        const form = document.getElementById('bidForm');
+        const previousBidsList = document.getElementById('previousBids');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const amount = formData.get('amount');
+            const bidder = formData.get('bidder');
+            const auctionId = formData.get('auction_id');
+
+            const bidData = {
+                amount: amount,
+                bidder: bidder,
+                auction_id: auctionId
+            };
+
+            ws.send(JSON.stringify(bidData));
+        });
+
+        const ws = new WebSocket('ws://localhost:8000/ws/auction/');
+        ws.onopen = function(event) {
+            console.log("WebSocket connection established.");
+            // Now that the connection is open, you can send a message
+            ws.send("Requesting previous bids...");
+        };
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
-            const biddingList = document.getElementById('bidding-list');
-            const newBid = document.createElement('li');
-            newBid.textContent = `New bid: ${data.new_bid}`;
-            biddingList.appendChild(newBid);
+            if (data.all_bids) {
+                previousBidsList.innerHTML = '';
+                data.all_bids.forEach(bid => {
+                    const li = document.createElement('li');
+                    li.textContent = `Bidder: ${bid.bidder}, Amount: ${bid.amount}`;
+                    previousBidsList.appendChild(li);
+                });
+            } else if (data.type === 'bid_message') {
+                const li = document.createElement('li');
+                li.textContent = `Bidder: ${data.bidder}, Amount: ${data.amount}`;
+                previousBidsList.appendChild(li);
+            }
         };
 
-        document.getElementById('bid-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const bidAmount = document.getElementById('bid-amount').value;
-            ws.send(JSON.stringify({'new_bid': bidAmount}));
+        // Request previous bids when the page loads
+        window.addEventListener('load', () => {
+            ws.send(JSON.stringify({ type: 'request_previous_bids' }));
         });
     </script>
 </body>
