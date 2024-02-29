@@ -38,7 +38,7 @@
         ws.onopen = function(event) {
             console.log("WebSocket connection established.");
             // Now that the connection is open, you can send a message
-            ws.send("Requesting all auctions with bids...");
+            // ws.send("Requesting all auctions with bids...");
         };
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
@@ -56,7 +56,7 @@
             auctions.forEach(auction => {
                 const auctionBox = document.createElement('div');
                 auctionBox.classList.add('auction-box');
-
+                auctionBox.setAttribute('data-auction-id', auction.id);
                 const auctionId = document.createElement('div');
                 auctionId.classList.add('auction-id');
                 auctionId.textContent = `Auction ID: ${auction.id}`;
@@ -109,15 +109,18 @@
 
         // Function to update bid list when a new bid is received
         function updateBidList(auctionId, amount, bidder) {
-            const auctionBox = document.querySelector(`#auctionsContainer .auction-box .auction-id`);
-            if (auctionBox && auctionBox.textContent.includes(`Auction ID: ${auctionId}`)) {
-                const bidList = auctionBox.nextElementSibling;
+        const auctionBox = document.querySelector(`#auctionsContainer .auction-box[data-auction-id="${auctionId}"]`);
+        if (auctionBox) {
+            const bidList = auctionBox.querySelector('.bid-list');
+            if (bidList) {
                 const bidItem = document.createElement('li');
                 bidItem.classList.add('bid-item');
                 bidItem.textContent = `Bidder: ${bidder}, Amount: ${amount}`;
                 bidList.appendChild(bidItem);
             }
         }
+    }
+
     </script>
 </body>
 </html>
