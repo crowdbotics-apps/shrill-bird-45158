@@ -61,6 +61,11 @@
                 auctionId.classList.add('auction-id');
                 auctionId.textContent = `Auction ID: ${auction.id}`;
                 auctionBox.appendChild(auctionId);
+                const auctionVehiclename = document.createElement('div');
+                auctionVehiclename.classList.add('auction-vehiclename');
+                auctionVehiclename.textContent = `Vehicle Name: ${auction.vehicle}`;
+                auctionBox.appendChild(auctionVehiclename);
+                
 
                 const bidList = document.createElement('ul');
                 bidList.classList.add('bid-list');
