@@ -37,6 +37,12 @@ class User(AbstractUser):
     email = models.EmailField(_("Email"), blank=True, null=True, unique=True)
     verification_code = models.CharField(max_length=6, null=True, blank=True)
     role = models.CharField(max_length=255, choices=[('buyer','buyer'), ('seller','seller')], blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+    city = models.CharField(max_length=255, blank=True, null=True)
+    state = models.CharField(max_length=255, blank=True, null=True)
+    country = models.CharField(max_length=255, blank=True, null=True)
+    zip_code = models.CharField(max_length=255, blank=True, null=True)
+    credit_card_verified = models.BooleanField(default=False)
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
