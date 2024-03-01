@@ -3,6 +3,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+import logging
+logger = logging.getLogger(__name__)
 
 delivery_status_choices=[('undelivered','undelivered'),
                         ('delivered','delivered')
@@ -22,20 +26,18 @@ class Auction(models.Model):
     delivery_status = models.CharField(max_length=20, choices=delivery_status_choices, default='undelivered')
     buyer = models.ForeignKey('users.User', related_name='buyer', on_delete=models.CASCADE, null=True, blank=True)
     seller = models.ForeignKey('users.User', related_name='seller', on_delete=models.CASCADE)
-    vehicle = models.OneToOneField('vehicle.Vehicle', on_delete=models.CASCADE)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     status = models.CharField(max_length=20, choices=auction_status_choices, default='open')
     auctioned = models.BooleanField(default=False)
+    # GenericForeignKey setup
+    item_category = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    item_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('item_category', 'item_id')
+
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = ('vehicle', 'buyer')
-
-
-    def __str__(self):
-        return self.vehicle.name
     
 
 class Bid(models.Model):
@@ -54,17 +56,17 @@ class Bid(models.Model):
                 self.auction.buyer = self.bidder
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.auction.vehicle.name
     
 @receiver(post_save, sender=Bid)
 def send_bid_update(sender, instance, **kwargs):
+    
     if kwargs.get('created', False):
+        logger.info(f"New bid created - Amount: {instance.amount}, Bidder: {instance.bidder.username}, Auction ID: {instance.auction.id}")
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             'auction_room',
             {
-                'type': 'send_bid',
+                'type': 'bid_message',
                 'amount': instance.amount,
                 'bidder': instance.bidder.username,
                 'auction_id': instance.auction.id
