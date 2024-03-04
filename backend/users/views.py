@@ -77,9 +77,9 @@ class SendOTPView(APIView):
         if serializer.is_valid():
             phone_number = serializer.validated_data.get('phone_number')
             verification_code = generate_verification_code()
-            output = send_verification_code(phone_number, verification_code)
-            print("output", output)
             try:
+                output = send_verification_code(phone_number, verification_code)
+                print("output", output)
                 if output.account_sid:
                     response_data = {'detail': 'Verification code sent successfully.',
                                      'verification_code': verification_code}
