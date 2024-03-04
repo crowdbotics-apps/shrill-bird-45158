@@ -90,14 +90,14 @@ THIRD_PARTY_APPS = [
     'import_export',
 ]
 MODULES_APPS = get_modules()
-
-INSTALLED_APPS += LOCAL_APPS + THIRD_PARTY_APPS + MODULES_APPS
-
+INSTALLED_APPS += LOCAL_APPS + THIRD_PARTY_APPS
+if not DEBUG:
+    INSTALLED_APPS += MODULES_APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -117,6 +117,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries': {
+                'staticfiles': 'django.templatetags.static',
+            },
         },
     },
 ]
@@ -207,6 +210,8 @@ REST_AUTH = {
     "PASSWORD_RESET_SERIALIZER": "home.api.v1.serializers.PasswordSerializer",
     # Use custom serializer that has no username and matches web signup
     "REGISTER_SERIALIZER": "home.api.v1.serializers.SignupSerializer",
+    
+    'LOGIN_SERIALIZER': 'home.api.v1.serializers.LoginSerializer',
 }
 
 REST_FRAMEWORK = {
@@ -287,3 +292,9 @@ if GS_BUCKET_NAME:
     GS_DEFAULT_ACL = "publicRead"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+TWILIO_ACCOUNT_SID = env.str("TWILIO_ACCOUNT_SID", "")
+TWILIO_AUTH_TOKEN = env.str("TWILIO_AUTH_TOKEN", "")
+TWILIO_PHONE_NUMBER = env.str("TWILIO_PHONE_NUMBER", "")
+
+REST_SESSION_LOGIN = False
