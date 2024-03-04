@@ -21,7 +21,14 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .serializers import VerificationSerializer
-
+from home.api.v1.serializers import SignupSerializer
+from home.api.v1.serializers import SignupSerializer
+from rest_framework.views import APIView
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import PhoneSignupSerializer
+from .utils import send_verification_code
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
@@ -64,26 +71,24 @@ def generate_verification_code():
     return ''.join(random.choices('0123456789', k=6))
 
 
-class SignUpView(CreateAPIView):
-    serializer_class = PhoneSignupSerializer
-
-    def perform_create(self, serializer):
-        phone_number = self.request.data.get('phone_number')
-        verification_code = generate_verification_code() 
-        check_phone = User.objects.filter(phone_number=phone_number)
-        if check_phone.exists():
-            return Response({'detail': 'User already exists with this phone number.'}, status=status.HTTP_400_BAD_REQUEST)
-        output = send_verification_code(phone_number, verification_code)
-        print("output", output )
-        try:
-            if output.account_sid:
-                user, created = User.objects.get_or_create(phone_number=phone_number, username=phone_number)
-                user.verification_code = verification_code
-                user.save()
-                return Response({'detail': 'Verification code sent successfully.'}, status=status.HTTP_200_OK)
-        except Exception as e:
-            print("error", e)
-            return Response({'detail': 'Failed to send verification code.'}, status=status.HTTP_400_BAD_REQUEST)
+class SendOTPView(APIView):
+    def post(self, request):
+        serializer = PhoneSignupSerializer(data=request.data)
+        if serializer.is_valid():
+            phone_number = serializer.validated_data.get('phone_number')
+            verification_code = generate_verification_code()
+            output = send_verification_code(phone_number, verification_code)
+            print("output", output)
+            try:
+                if output.account_sid:
+                    response_data = {'detail': 'Verification code sent successfully.',
+                                     'verification_code': verification_code}
+                    return Response(response_data, status=status.HTTP_200_OK)
+            except Exception as e:
+                print("error", e)
+                return Response({'detail': 'Failed to send verification code.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class VerifyCodeAPIView(generics.GenericAPIView):
@@ -92,20 +97,14 @@ class VerifyCodeAPIView(generics.GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         phone_number = serializer.validated_data.get('phone_number')
-        verification_code = serializer.validated_data.get('verification_code')
-        try:
-            user = User.objects.get(phone_number=phone_number)
-            if user.verify_code(verification_code):
-                token, _ = Token.objects.get_or_create(user=user)
-                return Response({'token': token.key}, status=status.HTTP_200_OK)
-            else:
-                return Response({'error': 'Invalid verification code'}, status=status.HTTP_400_BAD_REQUEST)
-        except User.DoesNotExist:
-            return Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
-
-
+        check_phone = User.objects.filter(phone_number=phone_number)
+        if check_phone.exists():
+            return Response({'detail': 'Phone number already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            user = User.objects.create(phone_number=phone_number)
+            token = Token.objects.create(user=user)
+            return Response({'token': token.key}, status=status.HTTP_200_OK)
 
 class PasswordResetView(APIView):
     def post(self, request, *args, **kwargs):
@@ -204,9 +203,7 @@ class Login(APIView):
         except Exception as e:
             return Response({'detail': 'Invalid username.'}, status=status.HTTP_400_BAD_REQUEST)
         
-from home.api.v1.serializers import SignupSerializer
-from home.api.v1.serializers import SignupSerializer
-from rest_framework.views import APIView
+
 
 class SignupwithEmailAndUsername(APIView):
     def post(self, request, *args, **kwargs):

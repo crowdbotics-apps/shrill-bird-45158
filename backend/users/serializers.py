@@ -8,7 +8,6 @@ class PhoneSignupSerializer(serializers.ModelSerializer):
 
 class VerificationSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=15)
-    verification_code = serializers.CharField(max_length=6)
     
 
 class PasswordResetSerializer(serializers.Serializer):
