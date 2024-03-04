@@ -55,15 +55,6 @@ class SignupSerializer(serializers.ModelSerializer):
             },
         }
 
-    def _get_request(self):
-        request = self.context.get("request")
-        if (
-            request
-            and not isinstance(request, HttpRequest)
-            and hasattr(request, "_request")
-        ):
-            request = request._request
-        return request
 
     def validate_email(self, email):
         email = get_adapter().clean_email(email)
@@ -90,8 +81,6 @@ class SignupSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data.get("password"))
         user.save()
-        request = self._get_request()
-        setup_user_email(request, user, [])
         return user
 
     def save(self, request=None):

@@ -186,3 +186,34 @@ class DeleteUserByPhone(APIView):
             return Response({'detail': 'User deleted successfully.'}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({'detail': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class Login(APIView):
+    def post(self, request, *args, **kwargs):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        try:
+            user = User.objects.get(username=username)
+            if user.check_password(password):
+                token, _ = Token.objects.get_or_create(user=user)
+                return Response({'token': token.key}, status=status.HTTP_200_OK)
+            else:
+                return Response({'detail': 'Invalid password.'}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({'detail': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'detail': 'Invalid username.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+from home.api.v1.serializers import SignupSerializer
+from home.api.v1.serializers import SignupSerializer
+from rest_framework.views import APIView
+
+class SignupwithEmailAndUsername(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = SignupSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
