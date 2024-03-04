@@ -5,7 +5,7 @@ from users.views import (
     user_update_view,
     user_detail_view,
 )
-from .views import SignUpView, VerifyCodeAPIView, PasswordResetView, PasswordResetConfirmView, UniqueUsernameCheck
+from .views import SignUpView, VerifyCodeAPIView, PasswordResetView, PasswordResetConfirmView, UniqueUsernameCheck,UserProfileView
 
 app_name = "users"
 urlpatterns = [
@@ -20,5 +20,6 @@ urlpatterns = [
         PasswordResetView.as_view(),
         name="forgot-password",
     ),
+    path("profile/", UserProfileView.as_view(), name="profile"),
     path('password/reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm_api'),
 ]
