@@ -5,7 +5,7 @@ from users.views import (
     user_update_view,
     user_detail_view,
 )
-from .views import SignUpView, VerifyCodeAPIView, PasswordResetView, PasswordResetConfirmView, UniqueUsernameCheck
+from .views import SignUpView, VerifyCodeAPIView, PasswordResetView, PasswordResetConfirmView, UniqueUsernameCheck,DeleteUserByPhone
 
 app_name = "users"
 urlpatterns = [
@@ -21,4 +21,6 @@ urlpatterns = [
         name="forgot-password",
     ),
     path('password/reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm_api'),
+    path('delete-user/', DeleteUserByPhone.as_view(), name='delete-user'),
+    
 ]

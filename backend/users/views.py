@@ -57,16 +57,33 @@ user_redirect_view = UserRedirectView.as_view()
 
 
 
+import random
+
+def generate_verification_code():
+    # Generate a random 6-digit numeric code
+    return ''.join(random.choices('0123456789', k=6))
+
 
 class SignUpView(CreateAPIView):
     serializer_class = PhoneSignupSerializer
 
     def perform_create(self, serializer):
         phone_number = self.request.data.get('phone_number')
-        user, created = User.objects.get_or_create(phone_number=phone_number, username=phone_number)
-        if created:
-            send_verification_code(user)
-
+        verification_code = generate_verification_code() 
+        check_phone = User.objects.filter(phone_number=phone_number)
+        if check_phone.exists():
+            return Response({'detail': 'User already exists with this phone number.'}, status=status.HTTP_400_BAD_REQUEST)
+        output = send_verification_code(phone_number, verification_code)
+        print("output", output )
+        try:
+            if output.account_sid:
+                user, created = User.objects.get_or_create(phone_number=phone_number, username=phone_number)
+                user.verification_code = verification_code
+                user.save()
+                return Response({'detail': 'Verification code sent successfully.'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print("error", e)
+            return Response({'detail': 'Failed to send verification code.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class VerifyCodeAPIView(generics.GenericAPIView):
@@ -158,3 +175,14 @@ class UniqueUsernameCheck(APIView):
                 return Response({'detail': 'Username is required.'}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
             return Response({'detail': 'Username is unique.'}, status=status.HTTP_200_OK)
+        
+
+class DeleteUserByPhone(APIView):
+    def post(self, request, *args, **kwargs):
+        phone_number = request.data.get('phone_number')
+        try:
+            user = User.objects.get(phone_number=phone_number)
+            user.delete()
+            return Response({'detail': 'User deleted successfully.'}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'detail': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
