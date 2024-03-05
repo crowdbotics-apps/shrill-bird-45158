@@ -24,3 +24,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+
+
+class OnboardingSerializer(serializers.ModelSerializer):
+    make = serializers.CharField(max_length=255)
+    model = serializers.CharField(max_length=255)
+    

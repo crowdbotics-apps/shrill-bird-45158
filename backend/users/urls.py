@@ -5,13 +5,14 @@ from users.views import (
     user_update_view,
     user_detail_view,
 )
-from .views import SendOTPView, PhoneLoginView, VerifyCodeAPIView, PasswordResetView, PasswordResetConfirmView, UniqueUsernameCheck,UserProfileView,DeleteUserByPhone, Login, SignupwithEmailAndUsername
+from .views import SendOTPView, PhoneLoginView, VerifyCodeAPIView, PasswordResetView, PasswordResetConfirmView, UniqueUsernameCheck,UserProfileView,DeleteUserByPhone, Login, SignupwithEmailAndUsername, UserOnboardingView
 
 app_name = "users"
 urlpatterns = [
     path('unique-username/', UniqueUsernameCheck.as_view(), name='unique-user'),
     path('send-otp/', SendOTPView.as_view()),
     path('phone-login/', PhoneLoginView.as_view()),
+    path('onboarding/', UserOnboardingView.as_view(), name='onboarding'),
     path("~redirect/", view=user_redirect_view, name="redirect"),
     # path("~update/", view=user_update_view, name="update"),
     # path("<str:username>/", view=user_detail_view, name="detail"),

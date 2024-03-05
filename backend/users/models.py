@@ -57,3 +57,16 @@ class User(AbstractUser):
             return True
         else:
             return False
+
+
+
+class UserVehiclesReminder(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    make = models.CharField(max_length=255, blank=True, null=True)
+    model = models.CharField(max_length=255, blank=True, null=True)
+    
+    def __str__(self):
+        return self.user.username
+    
+
+    

@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.views.generic import DetailView, RedirectView, UpdateView
-from .models import User
+from .models import User, UserVehiclesReminder
 from .utils import send_verification_code
 from rest_framework.generics import CreateAPIView
 from .serializers import PhoneSignupSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer
@@ -252,3 +252,17 @@ class UserProfileView(APIView):
         user = request.user
         user.delete()
         return Response({'detail': 'User deleted successfully.'}, status=status.HTTP_200_OK)
+
+from .serializers import OnboardingSerializer
+class UserOnboardingView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    def post(self, request):
+        try:
+            make = request.data['make']
+            model = request.data['model']
+            user = request.user
+            UserVehiclesReminder.objects.create(user=user, make=make, model=model)
+            return Response({'detail': 'Onboarding data saved successfully.'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'detail': 'Failed to save onboarding data.'}, status=status.HTTP_400_BAD_REQUEST)
