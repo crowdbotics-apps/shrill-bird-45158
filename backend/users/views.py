@@ -28,6 +28,9 @@ from rest_framework import status
 from .serializers import UserProfileSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
+from rest_framework import status
+from rest_framework.response import Response
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
@@ -65,14 +68,15 @@ user_redirect_view = UserRedirectView.as_view()
 
 
 
-class SignUpView(CreateAPIView):
-    serializer_class = PhoneSignupSerializer
-
-    def perform_create(self, serializer):
-        phone_number = self.request.data.get('phone_number')
-        user, created = User.objects.get_or_create(phone_number=phone_number, username=phone_number)
-        if created:
-            send_verification_code(user)
+class PhoneLoginView(APIView):
+    def post(self, request):
+        phone_number = request.data.get('phone_number')
+        try:
+            user = User.objects.get(phone_number=phone_number)
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 
 
@@ -170,7 +174,7 @@ class UniqueUsernameCheck(APIView):
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
-    
+
     def get(self, request, *args, **kwargs):
         user = request.user
         serializer = UserProfileSerializer(user)
