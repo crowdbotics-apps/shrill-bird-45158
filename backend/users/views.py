@@ -261,8 +261,16 @@ class UserOnboardingView(CreateAPIView):
         try:
             make = request.data['make']
             model = request.data['model']
+            username = request.data['username']
+            phone_number = request.data['phone_number']
             user = request.user
-            UserVehiclesReminder.objects.create(user=user, make=make, model=model)
+            if make and model:
+                UserVehiclesReminder.objects.create(user=user, make=make, model=model)
+                return Response({'detail': 'Onboarding data saved successfully.'}, status=status.HTTP_200_OK)
+            if username and phone_number:
+                user.username = username
+                user.phone_number = phone_number
+                user.save()
             return Response({'detail': 'Onboarding data saved successfully.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'detail': 'Failed to save onboarding data.'}, status=status.HTTP_400_BAD_REQUEST)
