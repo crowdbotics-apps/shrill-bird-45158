@@ -11,24 +11,22 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework.views import APIView
+
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from .models import User
-from .serializers import VerificationSerializer
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from .serializers import VerificationSerializer
 from home.api.v1.serializers import SignupSerializer
-from home.api.v1.serializers import SignupSerializer
-from rest_framework.views import APIView
-from rest_framework.views import APIView
+
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import PhoneSignupSerializer
 from .utils import send_verification_code
+from .serializers import UserProfileSerializer
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
@@ -70,6 +68,15 @@ def generate_verification_code():
     # Generate a random 6-digit numeric code
     return ''.join(random.choices('0123456789', k=6))
 
+class PhoneLoginView(APIView):
+    def post(self, request):
+        phone_number = request.data.get('phone_number')
+        try:
+            user = User.objects.get(phone_number=phone_number)
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 class SendOTPView(APIView):
     def post(self, request):
@@ -214,3 +221,34 @@ class SignupwithEmailAndUsername(APIView):
             return Response({'token': token.key}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        user = request.user
+        serializer = UserProfileSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'detail': 'Profile updated successfully.'}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self, request, *args, **kwargs):
+        user = request.user
+        serializer = UserProfileSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'detail': 'updated successfully.'}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        user.delete()
+        return Response({'detail': 'User deleted successfully.'}, status=status.HTTP_200_OK)

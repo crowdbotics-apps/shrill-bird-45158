@@ -5,12 +5,13 @@ from users.views import (
     user_update_view,
     user_detail_view,
 )
-from .views import SendOTPView, VerifyCodeAPIView, PasswordResetView, PasswordResetConfirmView, UniqueUsernameCheck,DeleteUserByPhone, Login, SignupwithEmailAndUsername
+from .views import SendOTPView, PhoneLoginView, VerifyCodeAPIView, PasswordResetView, PasswordResetConfirmView, UniqueUsernameCheck,UserProfileView,DeleteUserByPhone, Login, SignupwithEmailAndUsername
 
 app_name = "users"
 urlpatterns = [
     path('unique-username/', UniqueUsernameCheck.as_view(), name='unique-user'),
     path('send-otp/', SendOTPView.as_view()),
+    path('phone-login/', PhoneLoginView.as_view()),
     path("~redirect/", view=user_redirect_view, name="redirect"),
     # path("~update/", view=user_update_view, name="update"),
     # path("<str:username>/", view=user_detail_view, name="detail"),
@@ -20,6 +21,7 @@ urlpatterns = [
         PasswordResetView.as_view(),
         name="forgot-password",
     ),
+    path("profile/", UserProfileView.as_view(), name="profile"),
     path('password/reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm_api'),
     path('delete-user/', DeleteUserByPhone.as_view(), name='delete-user'),
     path('login/', Login.as_view(), name='login'),
