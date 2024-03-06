@@ -259,14 +259,16 @@ class UserOnboardingView(CreateAPIView):
     authentication_classes = [TokenAuthentication]
     def post(self, request):
         try:
-            make = request.data['make']
-            model = request.data['model']
-            username = request.data['username']
-            phone_number = request.data['phone_number']
+            makeandmodel = request.data.get('makeandmodel')
+            username = request.data.get('username')
+            phone_number = request.data.get('phone_number')
             user = request.user
-            if make and model:
-                UserVehiclesReminder.objects.create(user=user, make=make, model=model)
-                return Response({'detail': 'Onboarding data saved successfully.'}, status=status.HTTP_200_OK)
+            if makeandmodel:
+                for item in makeandmodel:
+                    make = item.get('make')
+                    model = item.get('model')
+                    if make and model:
+                        UserVehiclesReminder.objects.create(user=user, make=make, model=model)
             if username and phone_number:
                 user.username = username
                 user.phone_number = phone_number

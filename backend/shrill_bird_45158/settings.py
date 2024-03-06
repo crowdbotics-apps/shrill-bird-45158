@@ -222,8 +222,8 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = "users.User"
 
 EMAIL_HOST = env.str("EMAIL_HOST", "smtp.sendgrid.net")
-EMAIL_HOST_USER = env.str("SENDGRID_USERNAME", "")
-EMAIL_HOST_PASSWORD = env.str("SENDGRID_PASSWORD", "")
+EMAIL_HOST_USER = env.str("SENDGRID_USERNAME", "info@topgearbids.com")
+EMAIL_HOST_PASSWORD = env.str("SENDGRID_PASSWORD", "WewillCrushBAT2024!")
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
