@@ -5,7 +5,7 @@ from users.views import (
     user_update_view,
     user_detail_view,
 )
-from .views import SendOTPView, PhoneLoginView, VerifyCodeAPIView, PasswordResetView, PasswordResetConfirmView, UniqueUsernameCheck,UserProfileView,DeleteUserByPhone, Login, SignupwithEmailAndUsername, UserOnboardingView
+from .views import SendOTPView, PhoneLoginView, VerifyCodeAPIView, PasswordResetView, PasswordResetConfirmView, UniqueUsernameCheck,UserProfileView,DeleteUserByPhone, Login, SignupwithEmailAndUsername, UserOnboardingView, UserStripeToken
 
 app_name = "users"
 urlpatterns = [
@@ -27,4 +27,5 @@ urlpatterns = [
     path('delete-user/', DeleteUserByPhone.as_view(), name='delete-user'),
     path('login/', Login.as_view(), name='login'),
     path('username-signup/', SignupwithEmailAndUsername.as_view(), name='signup'),
+    path('custom_token/', UserStripeToken.as_view(), name='stripe'),
 ]

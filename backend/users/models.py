@@ -68,5 +68,7 @@ class UserVehiclesReminder(models.Model):
     def __str__(self):
         return self.user.username
     
-
-    
+class UserStripe(models.Model):
+    customer_id = models.CharField(max_length=255, blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    custom_token = models.CharField(max_length=255, blank=True, null=True)    

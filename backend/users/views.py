@@ -276,3 +276,40 @@ class UserOnboardingView(CreateAPIView):
             return Response({'detail': 'Onboarding data saved successfully.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'detail': 'Failed to save onboarding data.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+import stripe
+
+class UserStripeView(APIView):
+    def post(self, request, *args, **kwargs):
+        stripe.api_key = "sk_test_51OlcTwHMwXjMgTe66E5ftR7biZPzZ73UiKuOPteujebBSqMJE6dVMeOISWv91eG4MXelX4nvzCRKJJRsMbrAvwgX000BhxToWb"
+        customer = stripe.Customer.create(
+            name="JyRosen")
+        print("customer", customer.id)
+        return Response({'detail': 'Stripe customer created successfully.'}, status=status.HTTP_200_OK)
+
+
+from .models import UserStripe
+
+class UserStripeToken(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    def post(self, request, *args, **kwargs):
+        stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+        custom_token = request.data.get('custom_token')
+        if custom_token:
+            user = request.user
+            customer = stripe.Customer.create(
+                name=user.username)
+            UserStripe.objects.create(user=user, custom_token=custom_token, customer_id=customer.id)
+            return Response({'detail': 'Stripe token created successfully.'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': 'Custom token is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        try:
+            user_stripe = UserStripe.objects.get(user=user)
+            return Response({'custom_token': user_stripe.custom_token,"customer_id":user_stripe.customer_id,"username":user.username}, status=status.HTTP_200_OK)
+        except UserStripe.DoesNotExist:
+            return Response({'detail': 'Stripe token not found.'}, status=status.HTTP_404_NOT_FOUND)
