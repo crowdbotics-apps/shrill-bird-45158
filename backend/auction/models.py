@@ -67,8 +67,9 @@ def send_bid_update(sender, instance, **kwargs):
             'auction_room',
             {
                 'type': 'bid_message',
-                'amount': instance.amount,
+                'amount': float(instance.amount),
                 'bidder': instance.bidder.username,
                 'auction_id': instance.auction.id
             }
         )
+        print("message send to group auction_room from model")

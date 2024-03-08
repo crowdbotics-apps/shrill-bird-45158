@@ -64,6 +64,8 @@ class AuctionConsumer(AsyncWebsocketConsumer):
 
     async def bid_message(self, event):
         # Handler for bid messages
+        print("message received from group auction_room")
+        print("event", event)
         await self.send(text_data=json.dumps(event))
 
     async def send_auction_countdown(self, event):
