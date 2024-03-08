@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, UserStripe
 class PhoneSignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -30,3 +30,8 @@ class OnboardingSerializer(serializers.ModelSerializer):
     make = serializers.CharField(max_length=255)
     model = serializers.CharField(max_length=255)
     
+
+class UserStripeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserStripe
+        fields = '__all__'

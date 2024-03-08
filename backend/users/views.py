@@ -253,7 +253,7 @@ class UserProfileView(APIView):
         user.delete()
         return Response({'detail': 'User deleted successfully.'}, status=status.HTTP_200_OK)
 
-from .serializers import OnboardingSerializer
+from .serializers import UserStripeSerializer
 class UserOnboardingView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -309,7 +309,8 @@ class UserStripeToken(APIView):
     def get(self, request, *args, **kwargs):
         user = request.user
         try:
-            user_stripe = UserStripe.objects.get(user=user)
-            return Response({'custom_token': user_stripe.custom_token,"customer_id":user_stripe.customer_id,"username":user.username}, status=status.HTTP_200_OK)
+            user_stripe = UserStripe.objects.filter(user=user)
+            serializer = UserStripeSerializer(user_stripe, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except UserStripe.DoesNotExist:
-            return Response({'detail': 'Stripe token not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': 'User stripe does not exist.'}, status=status.HTTP_404_NOT_FOUND)
