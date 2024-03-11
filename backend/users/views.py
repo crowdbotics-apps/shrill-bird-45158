@@ -103,12 +103,16 @@ class loginSendOTPView(APIView):
         phone_number = request.data.get('phone_number')
         verification_code = generate_verification_code()
         try:
+            user = User.objects.get(phone_number=phone_number)
             output = send_verification_code(phone_number, verification_code)
             print("output", output)
             if output.account_sid:
                 response_data = {'detail': 'Verification code sent successfully.',
                                     'verification_code': verification_code}
                 return Response(response_data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        
         except Exception as e:
             print("error", e)
             return Response({'detail': 'Failed to send verification code.'}, status=status.HTTP_400_BAD_REQUEST)
