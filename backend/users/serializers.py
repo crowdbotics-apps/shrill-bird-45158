@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from .models import User, UserStripe
 class PhoneSignupSerializer(serializers.ModelSerializer):
-    phone_number = serializers.CharField(max_length=15)
+    class Meta:
+        model = User
+        fields = ['phone_number',]
 
 
 class VerificationSerializer(serializers.Serializer):

@@ -80,6 +80,26 @@ class PhoneLoginView(APIView):
 
 class SendOTPView(APIView):
     def post(self, request):
+        serializer = PhoneSignupSerializer(data=request.data)
+        if serializer.is_valid():
+            phone_number = serializer.validated_data.get('phone_number')
+            verification_code = generate_verification_code()
+            try:
+                output = send_verification_code(phone_number, verification_code)
+                print("output", output)
+                if output.account_sid:
+                    response_data = {'detail': 'Verification code sent successfully.',
+                                     'verification_code': verification_code}
+                    return Response(response_data, status=status.HTTP_200_OK)
+            except Exception as e:
+                print("error", e)
+                return Response({'detail': 'Failed to send verification code.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class loginSendOTPView(APIView):
+    def post(self, request):
         phone_number = request.data.get('phone_number')
         verification_code = generate_verification_code()
         try:
@@ -92,7 +112,8 @@ class SendOTPView(APIView):
         except Exception as e:
             print("error", e)
             return Response({'detail': 'Failed to send verification code.'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
 
 class VerifyCodeAPIView(generics.GenericAPIView):
     serializer_class = VerificationSerializer

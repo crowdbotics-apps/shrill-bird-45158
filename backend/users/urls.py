@@ -8,12 +8,13 @@ from django.urls import path
 
 from .views import (SendOTPView, PhoneLoginView, VerifyCodeAPIView, PasswordResetView,
                     PasswordResetConfirmView, UniqueUsernameCheck, UserProfileView, DeleteUserByPhone,
-                    Login, SignupwithEmailAndUsername, UserOnboardingView, UserStripeToken)
+                    Login, SignupwithEmailAndUsername, UserOnboardingView, UserStripeToken,loginSendOTPView)
 
 app_name = "users"
 urlpatterns = [
     path('unique-username/', UniqueUsernameCheck.as_view(), name='unique-user'),
-    path('send-otp/', SendOTPView.as_view()), #for signup and signin both
+    path('send-otp/', SendOTPView.as_view()), #for signup
+    path('login-send-otp/', loginSendOTPView.as_view()), #for signin
     path('phone-login/', PhoneLoginView.as_view()), #for signin only
     path('onboarding/', UserOnboardingView.as_view(), name='onboarding'),
     # path("~redirect/", view=user_redirect_view, name="redirect"),
