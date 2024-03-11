@@ -34,6 +34,13 @@ urlpatterns = [
     path("rest-auth/registration/", include("dj_rest_auth.registration.urls")),
 ]
 
+urlpatterns += [
+    path("apple-app-site-association", TemplateView.as_view(template_name="in-app-deep-linking.json",
+                                                        content_type="application/json")),
+    path(".well-known/assetlinks.json", TemplateView.as_view(template_name="assetlinks.json",
+                                                         content_type="application/json")),
+]
+
 admin.site.site_header = "Shrill Bird"
 admin.site.site_title = "Shrill Bird Admin Portal"
 admin.site.index_title = "Shrill Bird Admin"

@@ -1,0 +1,14 @@
+{
+    "applinks": {
+      "apps": [],
+      "details": [
+        {
+          "appID": "QHUUHU6886.com.Apricus.apricus-44996",
+          "paths": [
+            "NOT /_/*",
+            "/*"
+          ]
+        }
+      ]
+    }
+  }
