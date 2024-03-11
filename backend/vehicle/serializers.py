@@ -51,7 +51,7 @@ class VehicleVideoSerializer(serializers.ModelSerializer):
             expiration_time = 3600
             signed_url = s3.generate_presigned_url(
                 'get_object',
-                Params={'Bucket': 'jonesy-energy-42233', 'Key': object_key},
+                Params={'Bucket': 'shrill-bird-45158', 'Key': object_key},
                 ExpiresIn=expiration_time
             )
             return signed_url
@@ -60,11 +60,9 @@ class VehicleVideoSerializer(serializers.ModelSerializer):
 
 
 class VehicleSerializer(serializers.ModelSerializer):
-    images = VehicleImageSerializer(many=True)
-    videos = VehicleVideoSerializer(many=True)
     class Meta:
         model = Vehicle
-        fields = ['id', 'user', 'name', 'description', 'price', 'make', 'model', 'year', 'reserve_price', 'mileage', 'vehicle_specifications', 'buy_now', 'status', 'images', 'videos']
+        fields = ['id', 'user', 'name', 'description', 'price', 'make', 'model', 'year', 'reserve_price', 'mileage', 'vehicle_specifications', 'buy_now', 'status']
 
     def create(self, validated_data):
         images_data = self.context.get('request').FILES.getlist('images')

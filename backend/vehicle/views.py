@@ -19,6 +19,7 @@ class VehicleAdd(APIView):
     def post(self, request):
         data = request.POST.get('data', None)
         data = json.loads(data)
+        data['user'] = request.user.id
         serializer = VehicleSerializer(data=data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
@@ -31,5 +32,5 @@ class VehicleList(APIView):
     authentication_classes = [TokenAuthentication]
     def get(self, request):
         vehicles = Vehicle.objects.filter(user=request.user)
-        serializer = VehicleSerializer(vehicles, many=True)
+        serializer = VehicleListSerializer(vehicles, many=True)
         return Response(serializer.data)
