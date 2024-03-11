@@ -13,13 +13,13 @@ from .views import (SendOTPView, PhoneLoginView, VerifyCodeAPIView, PasswordRese
 app_name = "users"
 urlpatterns = [
     path('unique-username/', UniqueUsernameCheck.as_view(), name='unique-user'),
-    path('send-otp/', SendOTPView.as_view()),
-    path('phone-login/', PhoneLoginView.as_view()),
+    path('send-otp/', SendOTPView.as_view()), #for signup and signin both
+    path('phone-login/', PhoneLoginView.as_view()), #for signin only
     path('onboarding/', UserOnboardingView.as_view(), name='onboarding'),
     # path("~redirect/", view=user_redirect_view, name="redirect"),
     # path("~update/", view=user_update_view, name="update"),
     # path("<str:username>/", view=user_detail_view, name="detail"),
-    path('confirm-otp/', VerifyCodeAPIView.as_view(), name='verify'),
+    path('confirm-otp/', VerifyCodeAPIView.as_view(), name='verify'),##for signup only
     path(
         "forgot-password/",
         PasswordResetView.as_view(),
