@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser , JSONParser, FileUploadParser
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Bid
+from auction.models import Bid
 # Create your views here.
 
 
