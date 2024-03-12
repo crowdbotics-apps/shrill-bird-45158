@@ -52,3 +52,33 @@ class EditVehicle(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class DeleteImage(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    def post(self, request):
+        id = request.data.get('id', None)
+        if not id:
+            return Response({'error': 'id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            image = VehicleImage.objects.get(id=id)
+            image.delete()
+            return Response({'message': 'Image deleted successfully'}, status=status.HTTP_200_OK)
+        except VehicleImage.DoesNotExist:
+            return Response({'error': 'Image not found'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class DeleteVideo(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    def post(self, request):
+        id = request.data.get('id', None)
+        if not id:
+            return Response({'error': 'id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            video = VehicleVideo.objects.get(id=id)
+            video.delete()
+            return Response({'message': 'Video deleted successfully'}, status=status.HTTP_200_OK)
+        except VehicleVideo.DoesNotExist:
+            return Response({'error': 'Video not found'}, status=status.HTTP_400_BAD_REQUEST)
