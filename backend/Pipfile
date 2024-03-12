@@ -35,3 +35,10 @@ drf-spectacular = "~=0.26.4"
 dj-rest-auth = "==5.0.1"
 twilio = "*"
 stripe = "*"
+celery = "*"
+django-crontab = "*"
+daphne = "*"
+channels = {extras = ["daphne"], version = "*"}
+channels-redis = "*"
+twisted = {extras = ["tls", "http2"], version = "*"}
+django-cors-headers = "*"

@@ -62,17 +62,25 @@ SECURE_SSL_REDIRECT = env.bool("SECURE_REDIRECT", default=False)
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites'
+    'django.contrib.sites',
+    'corsheaders',
 ]
 LOCAL_APPS = [
+    
     'home',
     'users.apps.UsersConfig',
+    'vehicle',
+    'auction',
+    'payment',
+    'review',
 ]
 THIRD_PARTY_APPS = [
     'rest_framework',
@@ -90,10 +98,12 @@ THIRD_PARTY_APPS = [
     'import_export',
 ]
 MODULES_APPS = get_modules()
-INSTALLED_APPS += LOCAL_APPS + THIRD_PARTY_APPS
+INSTALLED_APPS += THIRD_PARTY_APPS + LOCAL_APPS
 if not DEBUG:
     INSTALLED_APPS += MODULES_APPS
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -101,6 +111,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",  # Add your allowed origins here
 ]
 
 ROOT_URLCONF = 'shrill_bird_45158.urls'
@@ -125,6 +139,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'shrill_bird_45158.wsgi.application'
+ASGI_APPLICATION = 'shrill_bird_45158.asgi.application'
 
 
 # Database
@@ -302,3 +317,16 @@ SESSION_LOGIN = False
 CSRF_USE_SESSIONS=False
 CSRF_COOKIE_HTTPONLY=False
 CSRF_COOKIE_SECURE = False
+
+
+# settings.py
+
+CRONJOBS = [
+    ('*/1 * * * *', 'yourapp.management.commands.check_auction_status.Command'),
+]
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',  # Use the appropriate backend
+    },
+}

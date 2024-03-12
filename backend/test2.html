@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auction Bidding Test</title>
+    <style>
+        .auction-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .auction-id {
+            font-weight: bold;
+        }
+        .bid-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 5px;
+            margin-top: 5px;
+        }
+        .bid-item {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Auction Bidding Test</h1>
+
+    <div id="auctionsContainer"></div>
+
+    <script>
+        const auctionsContainer = document.getElementById('auctionsContainer');
+
+        // WebSocket connection
+        const ws = new WebSocket('ws://localhost:8000/ws/auction/');
+        ws.onopen = function(event) {
+            console.log("WebSocket connection established.");
+            // Now that the connection is open, you can send a message
+            // ws.send("Requesting all auctions with bids...");
+        };
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (data.all_auctions_with_bids) {
+                renderAuctions(data.all_auctions_with_bids);
+            } else if (data.type === 'bid_message') {
+                // Handle bid messages
+                updateBidList(data.auction_id, data.amount, data.bidder);
+            }
+        };
+
+        // Function to render auctions with bids
+        function renderAuctions(auctions) {
+            auctionsContainer.innerHTML = '';
+            auctions.forEach(auction => {
+                const auctionBox = document.createElement('div');
+                auctionBox.classList.add('auction-box');
+                auctionBox.setAttribute('data-auction-id', auction.id);
+                const auctionId = document.createElement('div');
+                auctionId.classList.add('auction-id');
+                auctionId.textContent = `Auction ID: ${auction.id}`;
+                const auctionVehiclename = document.createElement('div');
+                auctionVehiclename.classList.add('auction-vehiclename');
+                auctionVehiclename.textContent = `Vehicle Name: ${auction.vehicle.name}`;
+                auctionBox.appendChild(auctionId);
+
+                const bidList = document.createElement('ul');
+                bidList.classList.add('bid-list');
+                auction.bids.forEach(bid => {
+                    const bidItem = document.createElement('li');
+                    bidItem.classList.add('bid-item');
+                    bidItem.textContent = `Bidder: ${bid.bidder}, Amount: ${bid.amount}`;
+                    bidList.appendChild(bidItem);
+                });
+                auctionBox.appendChild(bidList);
+
+                const bidAmountInput = document.createElement('input');
+                bidAmountInput.type = 'number';
+                bidAmountInput.placeholder = 'Enter bid amount';
+                auctionBox.appendChild(bidAmountInput);
+
+                const bidderIdInput = document.createElement('input');
+                bidderIdInput.type = 'text';
+                bidderIdInput.placeholder = 'Enter bidder ID';
+                auctionBox.appendChild(bidderIdInput);
+
+                const submitButton = document.createElement('button');
+                submitButton.textContent = 'Place Bid';
+                submitButton.onclick = function() {
+                    const amount = bidAmountInput.value;
+                    const bidder = bidderIdInput.value;
+                    if (amount && bidder) {
+                        const bidData = {
+                            amount: amount,
+                            bidder: bidder,
+                            auction_id: auction.id
+                        };
+                        ws.send(JSON.stringify(bidData));
+                        // Clear input fields after submitting bid
+                        bidAmountInput.value = '';
+                        bidderIdInput.value = '';
+                    } else {
+                        alert('Please enter bid amount and bidder ID.');
+                    }
+                };
+                auctionBox.appendChild(submitButton);
+
+                auctionsContainer.appendChild(auctionBox);
+            });
+        }
+
+        // Function to update bid list when a new bid is received
+        function updateBidList(auctionId, amount, bidder) {
+        const auctionBox = document.querySelector(`#auctionsContainer .auction-box[data-auction-id="${auctionId}"]`);
+        if (auctionBox) {
+            const bidList = auctionBox.querySelector('.bid-list');
+            if (bidList) {
+                const bidItem = document.createElement('li');
+                bidItem.classList.add('bid-item');
+                bidItem.textContent = `Bidder: ${bidder}, Amount: ${amount}`;
+                bidList.appendChild(bidItem);
+            }
+        }
+    }
+
+    </script>
+</body>
+</html>
