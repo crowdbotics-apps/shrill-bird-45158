@@ -9,6 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser , JSONParser, FileUploadParser
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Bid
 # Create your views here.
 
 
@@ -82,3 +85,28 @@ class DeleteVideo(APIView):
             return Response({'message': 'Video deleted successfully'}, status=status.HTTP_200_OK)
         except VehicleVideo.DoesNotExist:
             return Response({'error': 'Video not found'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+class GetVehicleAuctionStatus(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    def get(self, request):
+        vehicle_id = request.GET.get('id', None)
+        if not vehicle_id:
+            return Response({'error': 'id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        vehicle = Vehicle.objects.get(id=vehicle_id)
+        
+        # Get the count of bids for the vehicle
+        num_bids = Bid.objects.filter(vehicle=vehicle).count()
+        
+        auction_status = {
+            'highest_bid': vehicle.highest_bid,
+            'num_bids': num_bids,
+            'reserve_price': vehicle.reserve_price,
+            'auction_end_date': vehicle.auction_end_date,
+            'time_remaining': vehicle.time_remaining_in_auction()
+        }
+        
+        return Response({'auction_status': auction_status})
+

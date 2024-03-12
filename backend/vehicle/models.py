@@ -22,6 +22,16 @@ class Vehicle(models.Model):
 
     def __str__(self):
         return self.name
+
+    def time_remaining_in_auction(self):
+        from datetime import datetime
+        from django.utils import timezone
+        if self.auctions.exists():
+            auction = self.auctions.first()
+            time_remaining = auction.end_date - timezone.now()
+            return time_remaining.total_seconds()
+        return None
+    
     
 class VehicleImage(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='images')
