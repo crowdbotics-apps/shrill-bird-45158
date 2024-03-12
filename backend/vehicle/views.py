@@ -34,3 +34,21 @@ class VehicleList(APIView):
         vehicles = Vehicle.objects.filter(user=request.user)
         serializer = VehicleListSerializer(vehicles, many=True)
         return Response(serializer.data)
+    
+
+class EditVehicle(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    def put(self, request):
+        data = request.POST.get('data', None)
+        data = json.loads(data)
+        data['user'] = request.user.id
+        id = data.pop('id')
+        if not id:
+            return Response({'error': 'id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        vehicle = Vehicle.objects.get(id=id)
+        serializer = VehicleSerializer(vehicle, data=data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

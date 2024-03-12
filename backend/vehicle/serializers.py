@@ -74,6 +74,27 @@ class VehicleSerializer(serializers.ModelSerializer):
             VehicleVideo.objects.create(vehicle=vehicle, video=video_data)
         return vehicle
     
+    def update(self, instance, validated_data):
+        images_data = self.context.get('request').FILES.getlist('images')
+        videos_data = self.context.get('request').FILES.getlist('videos')
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+        instance.price = validated_data.get('price', instance.price)
+        instance.make = validated_data.get('make', instance.make)
+        instance.model = validated_data.get('model', instance.model)
+        instance.year = validated_data.get('year', instance.year)
+        instance.reserve_price = validated_data.get('reserve_price', instance.reserve_price)
+        instance.mileage = validated_data.get('mileage', instance.mileage)
+        instance.vehicle_specifications = validated_data.get('vehicle_specifications', instance.vehicle_specifications)
+        instance.buy_now = validated_data.get('buy_now', instance.buy_now)
+        instance.status = validated_data.get('status', instance.status)
+        instance.save()
+        for image_data in images_data:
+            VehicleImage.objects.create(vehicle=instance, image=image_data)
+        for video_data in videos_data:
+            VehicleVideo.objects.create(vehicle=instance, video=video_data)
+        return instance
+    
 
 class VehicleListSerializer(serializers.ModelSerializer):
     images = VehicleImageSerializer(many=True, read_only=True)
