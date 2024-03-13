@@ -2,9 +2,6 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
 
-
-
-
 class AuctionConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.auction_group_name = 'auction_room'
@@ -49,8 +46,10 @@ class AuctionConsumer(AsyncWebsocketConsumer):
 
     @sync_to_async
     def get_all_auctions_with_bids(self):
+        from django.utils import timezone
         from .models import Bid, Auction
-        auctions = Auction.objects.all()
+        from .serializers import AuctionSerializer, BidSerializer
+        auctions = Auction.objects.filter(status='running', start_date__lte=timezone.now(), end_date__gte=timezone.now())
         result = []
         for auction in auctions:
             bids = auction.bid_set.all()
@@ -60,7 +59,8 @@ class AuctionConsumer(AsyncWebsocketConsumer):
                 'status': auction.status,
                 'bids': [{'amount': float(bid.amount), 'bidder': bid.bidder.username} for bid in bids]
             })
-        return result
+        serializer = AuctionSerializer(auctions, many=True)
+        return serializer.data
 
     async def bid_message(self, event):
         # Handler for bid messages

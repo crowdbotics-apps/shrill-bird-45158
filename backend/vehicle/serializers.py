@@ -102,4 +102,10 @@ class VehicleListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
         fields = '__all__'
-        depth = 1
+
+
+
+class AuctionVehicleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehicle
+        fields = ['id', 'name', 'description', 'price', 'make', 'model', 'year', 'reserve_price', 'mileage', 'vehicle_specifications', 'buy_now', 'status']

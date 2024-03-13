@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -30,10 +30,6 @@ class Auction(models.Model):
     end_date = models.DateTimeField()
     status = models.CharField(max_length=20, choices=auction_status_choices, default='open')
     auctioned = models.BooleanField(default=False)
-    # GenericForeignKey setup
-    # item_category = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    # item_id = models.PositiveIntegerField()
-    # content_object = GenericForeignKey('item_category', 'item_id')
     vehicle = models.ForeignKey('vehicle.Vehicle', on_delete=models.CASCADE)
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -61,7 +57,6 @@ class Bid(models.Model):
 def send_bid_update(sender, instance, **kwargs):
     
     if kwargs.get('created', False):
-        logger.info(f"New bid created - Amount: {instance.amount}, Bidder: {instance.bidder.username}, Auction ID: {instance.auction.id}")
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             'auction_room',
@@ -72,4 +67,12 @@ def send_bid_update(sender, instance, **kwargs):
                 'auction_id': instance.auction.id
             }
         )
-        print("message send to group auction_room from model")
+
+# @receiver(pre_save, sender=Bid)
+# def on_change(sender, instance, **kwargs):
+#     old_bid = Bid.objects.filter(auction=instance.auction).order_by('-amount').first()
+#     if old_bid and (float(instance.amount) <= float(old_bid.amount)):
+#         raise Exception("Bid amount must be greater than the current highest bid amount")
+
+
+
