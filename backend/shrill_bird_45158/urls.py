@@ -33,6 +33,7 @@ urlpatterns = [
     path("rest-auth/registration/account-confirm-email/<str:key>/", confirm_email),
     path("rest-auth/registration/", include("dj_rest_auth.registration.urls")),
     path("vehicle/", include("vehicle.urls")),
+    path("auction/", include("auction.urls")),
 ]
 
 urlpatterns += [
