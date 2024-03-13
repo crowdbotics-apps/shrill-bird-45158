@@ -34,7 +34,7 @@ class User(AbstractUser):
     )
     name = models.CharField(_("Name of User"), blank=True, null=True, max_length=255)
     phone_number = models.CharField(_("Phone Number"), max_length=15, blank=True, null=True, unique=True)
-    email = models.EmailField(_("Email"), blank=True, null=True, unique=True)
+    email = models.EmailField(_("Email"), blank=True, null=True)
     verification_code = models.CharField(max_length=6, null=True, blank=True)
     role = models.CharField(max_length=255, choices=[('buyer','buyer'), ('seller','seller')], blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
