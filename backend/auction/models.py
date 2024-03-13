@@ -31,11 +31,11 @@ class Auction(models.Model):
     status = models.CharField(max_length=20, choices=auction_status_choices, default='open')
     auctioned = models.BooleanField(default=False)
     # GenericForeignKey setup
-    item_category = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    item_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('item_category', 'item_id')
-
-
+    # item_category = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    # item_id = models.PositiveIntegerField()
+    # content_object = GenericForeignKey('item_category', 'item_id')
+    vehicle = models.ForeignKey('vehicle.Vehicle', on_delete=models.CASCADE)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

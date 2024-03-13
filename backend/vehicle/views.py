@@ -11,7 +11,8 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser , JSONParser, FileUploadParser
 from rest_framework.response import Response
 from rest_framework import status
-from auction.models import Bid
+from auction.models import Bid, Auction
+from django.contrib.contenttypes.models import ContentType
 # Create your views here.
 
 
@@ -98,14 +99,16 @@ class GetVehicleAuctionStatus(APIView):
         vehicle = Vehicle.objects.get(id=vehicle_id)
         
         # Get the count of bids for the vehicle
-        num_bids = Bid.objects.filter(vehicle=vehicle).count()
+        bids = Bid.objects.filter(auction__vehicle=vehicle)
+        print(bids)
+        highest_bid = bids.order_by('-amount').first()
         
         auction_status = {
-            'highest_bid': vehicle.highest_bid,
-            'num_bids': num_bids,
+            'highest_bid': highest_bid.amount if highest_bid else None,
+            'num_bids': bids.count(),
             'reserve_price': vehicle.reserve_price,
-            'auction_end_date': vehicle.auction_end_date,
-            'time_remaining': vehicle.time_remaining_in_auction()
+            'auction_end_date': vehicle.auction_set.first().end_date if vehicle.auction_set.first() else None,
+            'time_remaining': vehicle.time_remaining_in_auction(),
         }
         
         return Response({'auction_status': auction_status})

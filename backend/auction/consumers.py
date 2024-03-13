@@ -56,7 +56,7 @@ class AuctionConsumer(AsyncWebsocketConsumer):
             bids = auction.bid_set.all()
             result.append({
                 'id': auction.id,
-                'vehicle': auction.content_object.name,
+                'vehicle': auction.vehicle.name,
                 'status': auction.status,
                 'bids': [{'amount': float(bid.amount), 'bidder': bid.bidder.username} for bid in bids]
             })

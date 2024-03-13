@@ -1,10 +1,13 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from datetime import datetime
+from django.utils import timezone
+from auction.models import Auction
+from django.contrib.contenttypes.models import ContentType
 # Create your models here.
 
 class Vehicle(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    auctions = GenericRelation('auction.Auction', related_query_name='vehicles')
     name = models.CharField(max_length=100)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -24,12 +27,12 @@ class Vehicle(models.Model):
         return self.name
 
     def time_remaining_in_auction(self):
-        from datetime import datetime
-        from django.utils import timezone
-        if self.auctions.exists():
-            auction = self.auctions.first()
-            time_remaining = auction.end_date - timezone.now()
-            return time_remaining.total_seconds()
+        auction = Auction.objects.filter(vehicle=self).first()
+        if auction:
+            end_date = auction.end_date
+            now = timezone.now()
+            time_remaining = end_date - now
+            return time_remaining
         return None
     
     
