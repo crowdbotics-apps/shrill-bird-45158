@@ -215,6 +215,15 @@ class DeleteUserByPhone(APIView):
             return Response({'detail': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
         
 
+class DeleteUser(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        user.delete()
+        return Response({'detail': 'User deleted successfully.'}, status=status.HTTP_200_OK)
+
 class Login(APIView):
     def post(self, request, *args, **kwargs):
         username = request.data.get('username')
