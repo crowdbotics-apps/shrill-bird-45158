@@ -1,14 +1,16 @@
-{
-    "applinks": {
-      "apps": [],
-      "details": [
-        {
-          "appID": "QHUUHU6886.com.Apricus.apricus-44996",
-          "paths": [
-            "NOT /_/*",
-            "/*"
-          ]
-        }
-      ]
+[
+    {
+      "relation": [
+        "delegate_permission/common.handle_all_urls"
+      ],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.hidden_cherry_45273",
+        "sha256_cert_fingerprints": [
+          "FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C",
+          "D0:62:52:AE:3C:78:9A:D0:2C:F5:AD:36:47:25:8B:2C:35:94:66:A9:76:C9:34:97:D5:72:9D:04:50:06:73:24"
+        ]
+      }
     }
-  }
+  ]
+ 
