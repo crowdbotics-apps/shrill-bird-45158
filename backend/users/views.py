@@ -147,7 +147,7 @@ class PasswordResetView(APIView):
             uid = urlsafe_base64_encode(force_text(user.pk).encode())
             token = default_token_generator.make_token(user)
             frontend = os.environ.get("FRONTEND_URL")
-            reset_url = f"{frontend}/createPassword/{token}/:{uid}"
+            reset_url = f"{frontend}/createPassword/:{token}/:{uid}"
             link = f'Click the following link to reset your password: {reset_url}'
             msg = render_to_string(
                 "email/resetpassword.html",
