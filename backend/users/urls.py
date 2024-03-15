@@ -8,7 +8,7 @@ from django.urls import path
 
 from .views import (SendOTPView, PhoneLoginView, VerifyCodeAPIView, PasswordResetView,
                     PasswordResetConfirmView, UniqueUsernameCheck, UserProfileView, DeleteUserByPhone,
-                    Login, SignupwithEmailAndUsername, UserOnboardingView, UserStripeToken,loginSendOTPView)
+                    Login, SignupwithEmailAndUsername, UserOnboardingView, UserStripeToken,loginSendOTPView,DeleteUser)
 
 app_name = "users"
 urlpatterns = [
@@ -29,7 +29,8 @@ urlpatterns = [
     path('password/reset/confirm/', PasswordResetConfirmView.as_view(),
          name='password_reset_confirm_api'),
     path("profile/", UserProfileView.as_view(), name="profile"),
-    path('delete-user/', DeleteUserByPhone.as_view(), name='delete-user'),
+    path('delete-user/', DeleteUser.as_view(), name='delete-user'),
+    path('delete-phone/',DeleteUserByPhone.as_view(), name='delete-user-by-phone'),
     path('login/', Login.as_view(), name='login'),
     path('username-signup/', SignupwithEmailAndUsername.as_view(), name='signup'),
     path('custom_token/', UserStripeToken.as_view(), name='stripe'),
